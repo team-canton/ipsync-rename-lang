@@ -138,7 +138,9 @@ const loginGoogle = () => {
         // ...
     }).catch((error) => {
         // Handle Errors here.
-        //   const errorCode = error.code;
+        const errorCode = getErrorMessage(error.code)
+        hasError.value = true;
+        hasError.message = errorCode;
         //   const errorMessage = error.message;
         //   // The email of the user's account used.
         //   const email = error.customData.email;
@@ -163,6 +165,9 @@ const loginGithub = () => {
         // IdP data available using getAdditionalUserInfo(result)
         // ...
     }).catch((error) => {
+        const errorCode = getErrorMessage(error.code)
+        hasError.value = true;
+        hasError.message = errorCode;s
         // Handle Errors here.
         // const errorCode = error.code;
         // const errorMessage = error.message;
@@ -183,15 +188,14 @@ const createUserAccount = () => {
         // ...
     })
     .catch((error) => {
+        const errorCode = getErrorMessage(error.code)
+        hasError.value = true;
+        hasError.message = errorCode;
 		buttonLock.value = false;
         // const errorCode = error.code;
         // const errorMessage = error.message;
         // ..
         // console.log(error.code)
-        if(error.code === 'auth/email-already-in-use'){
-            hasError.value = true
-            hasError.message = 'The email address is already registered.'
-        }
     });
 }
 
@@ -233,9 +237,25 @@ const validateInput = (name) => {
 
 const handleLogin = () => {
     if(!user.email.hasError && !user.password.hasError && !buttonLock.value) {
-		console.log(123)
         createUserAccount();
 		buttonLock.value = true;
     }
+}
+
+const getErrorMessage = (error) => {
+  switch (error) {
+    case 'auth/invalid-email':
+      return 'Invalid Email';
+    case 'auth/missing-password':
+      return 'Missing password';
+    case 'auth/email-already-in-use':
+      return 'Email already in use';
+    case 'auth/account-exists-with-different-credential':
+      return 'Account exists with different credential';
+    case 'auth/invalid-credential':
+      return 'Invalid credential';
+    default:
+      return 'An error occurred please try again.';
+  }
 }
 </script>

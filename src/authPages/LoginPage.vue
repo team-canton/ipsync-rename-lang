@@ -98,7 +98,7 @@ import VisibilityOffOutline from '../components/icons/VisibilityOffOutline.vue'
 
 const showPass = ref(false)
 const hasError = reactive({
-    value: false, message: 'An error occurred. Please Try Again'
+    value: false, message: 'An error occurred please try again.'
 })
 const buttonLock = ref(false)
 
@@ -126,13 +126,13 @@ const login = () => {
         // ...
     })
     .catch((error) => {
-        buttonLock.value = false;
+        const errorCode = getErrorMessage(error.code)
+        alert(error.code)
+        hasError.value = true;
+        hasError.message = errorCode;
+		buttonLock.value = false;
         // const errorCode = error.code;
         // const errorMessage = error.message;
-        if(error.code === 'auth/invalid-credential'){
-            hasError.value = true
-            hasError.message = 'Invalid user credentials'
-        }
         // console.log(error.code)
     });
 }
@@ -154,6 +154,9 @@ const loginGoogle = () => {
         // IdP data available using getAdditionalUserInfo(result)
         // ...
     }).catch((error) => {
+        const errorCode = getErrorMessage(error.code)
+        hasError.value = true;
+        hasError.message = errorCode;
         // Handle Errors here.
         //   const errorCode = error.code;
         //   const errorMessage = error.message;
@@ -180,6 +183,9 @@ const loginGithub = () => {
         // IdP data available using getAdditionalUserInfo(result)
         // ...
     }).catch((error) => {
+        const errorCode = getErrorMessage(error.code)
+        hasError.value = true;
+        hasError.message = errorCode;
         // Handle Errors here.
         // const errorCode = error.code;
         // const errorMessage = error.message;
@@ -231,5 +237,22 @@ const handleLogin = () => {
         login();
         buttonLock.value = true;
     }
+}
+
+const getErrorMessage = (error) => {
+  switch (error) {
+    case 'auth/invalid-email':
+      return 'Invalid Email';
+    case 'auth/missing-password':
+      return 'Missing password';
+    case 'auth/email-already-in-use':
+      return 'Email already in use';
+    case 'auth/account-exists-with-different-credential':
+      return 'Account exists with different credential';
+    case 'auth/invalid-credential':
+      return 'Invalid credential';
+    default:
+      return 'An error occurred please try again.';
+  }
 }
 </script>
