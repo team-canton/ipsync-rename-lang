@@ -8,6 +8,7 @@ import LoginPage from '../authPages/LoginPage.vue'
 import SignupPage from '../authPages/SignupPage.vue'
 import DashboardPage from '../protectedPages/DashboardPage.vue'
 import ProfilePage from '../protectedPages/ProfilePage.vue'
+import LandingPage from '../protectedPages/LandingPage.vue'
 
 import page404 from '../page404.vue'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -50,6 +51,11 @@ const router = createRouter({
                 path: 'profile',
                 name: 'Profile',
                 component: ProfilePage
+            },
+            {
+                path: '/landing',
+                name: 'Landing',
+                component: LandingPage
             }
             ]
         },
