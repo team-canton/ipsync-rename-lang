@@ -61,10 +61,6 @@
                         <span v-if="hasError.value" class="text-red-500 text-xs w-full text-start">
                             {{  hasError.message }}
                         </span>
-                        <div class="w-full flex justify-start text-[0.6rem] sm:text-xs md:text-[0.80rem] gap-1 my-1 md:mt-3">
-                            Forgot your password? 
-                            <span class="font-bold text-c1 cursor-pointer hover:underline">Reset</span>
-                        </div>
                     </div>
                     <div class="w-full">
                         <button @click="handleLogin" 

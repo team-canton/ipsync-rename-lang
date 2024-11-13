@@ -1,7 +1,8 @@
 <template>
     <div class="flex items-center justify-center w-screen h-screen bg-c1 overflow-auto px-8 sm:px-0">
-        <div class="shadow-[0rem_0.25rem_0.25rem_black] border border-black bg-white px-2 md:px-4 pt-7 md:pt-9 pb-5 
-            w-full sm:w-[80%] md:w-[68%] flex flex-col items-center justify-center max-w-[62rem]">
+        <div v-if="!resetPassword" 
+            class="shadow-[0rem_0.25rem_0.25rem_black] border border-black bg-white px-2 md:px-4 pt-7 md:pt-9 pb-5 
+                w-full sm:w-[80%] md:w-[68%] flex flex-col items-center justify-center max-w-[62rem]">
             <div class="w-full flex justify-start pl-2 px-2"><IPSYNCLogo class="w-12 h-7 sm:w-16 sm:h-9 md:w-20 md:h-12"/></div>
             <div class="text-c1 font-bold text-[1.5rem] sm:text-[2rem] md:text-[2.5rem] sm:-translate-y-2 md:-translate-y-6
                 px-2">
@@ -63,7 +64,8 @@
                         </span>
                         <div class="w-full flex justify-start text-[0.6rem] sm:text-xs md:text-[0.80rem] gap-1 my-1 md:mt-3">
                             Forgot your password? 
-                            <span class="font-bold text-c1 cursor-pointer hover:underline">Reset</span>
+                            <span @click="resetPassword = true" 
+                                class="font-bold text-c1 cursor-pointer hover:underline">Reset</span>
                         </div>
                     </div>
                     <div class="w-full">
@@ -80,11 +82,34 @@
                 </div>       
             </div>
         </div>
+        <div v-if="resetPassword"
+            class="flex flex-col gap-4 p-8 bg-white shadow-[0rem_0.25rem_0.25rem_black] border border-black">
+            Enter email address
+            <div class="w-[24rem]">
+                <input type="text" v-model="user.email.value" @blur="validateInput('email')"
+                    class="w-full py-3 border border-black focus:outline-none px-4 text-xs sm:text-[0.90rem] md:text-[1rem]
+                        placeholder:font-light shadow"
+                        placeholder="Email Address">
+                <span v-if="user.email.hasError" class="text-red-500 text-xs w-full text-start">
+                    {{ user.email.errorMessage }}</span>
+            </div>
+            <div class="w-full flex flex-col items-center gap-2">
+                <button @click="handleReset" 
+                    class="rounded-[1.5rem] bg-c1 text-white py-[0.4rem] sm:py-[0.5rem] md:py-[0.75rem] mt-1 md:mt-3 
+                    w-[10rem] text-xs sm:text-[0.90rem] md:text-[1rem] font-semibold active:scale-[99%]">
+                    Send
+                </button>
+                <span @click="resetPassword = false" 
+                    class="text-[0.6rem] sm:text-xs md:text-[0.80rem] w-full text-start">Back to 
+                    <span class="text-c1 font-semibold cursor-pointer hover:underline">Login</span>
+                </span>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { signInWithPopup, signInWithEmailAndPassword} from "firebase/auth";
+import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail} from "firebase/auth";
 import { auth, google, github } from '../firebase'
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
@@ -96,11 +121,14 @@ import GithubIcon from "../components/icons/GithubIcon.vue";
 import VisibilityOutline from '../components/icons/VisibilityOutline.vue'
 import VisibilityOffOutline from '../components/icons/VisibilityOffOutline.vue'
 
+import { toast } from "../funtions";
+
 const showPass = ref(false)
 const hasError = reactive({
     value: false, message: 'An error occurred please try again.'
 })
 const buttonLock = ref(false)
+const resetPassword = ref(false)
 
 const user = reactive({
     // first_name: { value: '', hasError: false, errorMessage: '' },
@@ -251,8 +279,35 @@ const getErrorMessage = (error) => {
       return 'Account exists with different credential';
     case 'auth/invalid-credential':
       return 'Invalid credential';
+    case 'auth/too-many-requests':
+      return 'Too many requests';
     default:
       return 'An error occurred please try again.';
   }
+}
+const handleReset = () => {
+    validateInput('email')
+    setTimeout(() => {
+        if(!user.email.hasError) {
+            sendPasswordResetEmail(auth, user.email.value)
+            .then(() => {
+                // Password reset email sent!
+                // ..
+                toast();
+                setTimeout(() => {
+                    resetPassword.value = false
+                }, 1600)
+            })
+            .catch((error) => {
+                const errorCode = getErrorMessage(error.code)
+                user.email.errorMessage = errorCode;
+                user.email.hasError = true;
+                // alert(error.code)
+                // const errorCode = error.code;
+                // const errorMessage = error.message;
+                // ..
+            });
+        }
+    }, 50)
 }
 </script>
